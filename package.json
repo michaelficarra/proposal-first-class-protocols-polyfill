@@ -1,0 +1,23 @@
+{
+  "name": "proposal-first-class-protocols",
+  "version": "1.0.0",
+  "description": "polyfill for first-class protocols runtime component",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/michaelficarra/proposal-first-class-protocols-polyfill.git"
+  },
+  "author": "Michael Ficarra",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/michaelficarra/proposal-first-class-protocols-polyfill/issues"
+  },
+  "homepage": "https://github.com/michaelficarra/proposal-first-class-protocols-polyfill#readme",
+  "devDependencies": {
+    "babel-eslint": "8.0.0",
+    "eslint": "3.19.0"
+  }
+}
