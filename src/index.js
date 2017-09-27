@@ -15,7 +15,7 @@ function _entries(obj) {
 
 if (typeof Protocol === 'undefined') {
   let global = Function('return this')();
-  global.Protocol = class Protocol {
+  global.Protocol = class Protocol extends null {
     constructor({
       name: protocolName,
       extends: _extends = [],
@@ -24,6 +24,7 @@ if (typeof Protocol === 'undefined') {
       protoProperties = {},
       staticProperties = {},
     } = {}) {
+      super();
       this._name = protocolName;
       this._extends = _extends;
       this._symbols = _objectMap(symbols, ([name, sym]) => [name, sym == null ? this._createSymbol(name, { value: sym }) : sym]);
@@ -127,6 +128,4 @@ if (typeof Protocol === 'undefined') {
       return klass;
     }
   };
-  // HACK: babel doesn't support `extends null` in class decls/exprs
-  Object.setPrototypeOf(global.Protocol.prototype, null);
 }
