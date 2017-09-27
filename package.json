@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "polyfill for first-class protocols runtime component",
   "main": "dist/index.js",
+  "files": ["dist"],
   "scripts": {
     "build": "babel --out-dir dist/ src/",
     "test": "node -r . -e 'process.exit(typeof Protocol === \"function\" ? 0 : 1);'",
