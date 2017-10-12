@@ -19,25 +19,25 @@ if (typeof Protocol === 'undefined') {
     constructor({
       name: protocolName,
       extends: _extends = [],
-      symbols = {},
-      staticSymbols = {},
-      protoProperties = {},
-      staticProperties = {},
+      requires = {},
+      staticRequires = {},
+      provides = {},
+      staticProvides = {},
     } = {}) {
       super();
       this._name = protocolName;
       this._extends = _extends;
-      this._symbols = _objectMap(symbols, ([name, sym]) => [name, sym == null ? this._createSymbol(name, { value: sym }) : sym]);
-      this._staticSymbols = _objectMap(staticSymbols, ([name, sym]) => [name, sym == null ? this._createSymbol(name, { value: sym }) : sym]);
-      this._protoProperties = protoProperties;
-      this._staticProperties = staticProperties;
-      // TODO: check that there's no conflicts between symbols/staticSymbols/protoProperties/staticProperties
+      this._requires = _objectMap(requires, ([name, sym]) => [name, sym == null ? this._createSymbol(name, { value: sym }) : sym]);
+      this._staticRequires = _objectMap(staticRequires, ([name, sym]) => [name, sym == null ? this._createSymbol(name, { value: sym }) : sym]);
+      this._provides = provides;
+      this._staticProvides = staticProvides;
+      // TODO: check that there's no conflicts between requires/staticRequires/provides/staticProvides
       Object.assign(
         this,
-        this._symbols,
-        this._staticSymbols,
-        _objectMap(protoProperties, ([name, desc]) => [name, this._createSymbol(name, desc)]),
-        _objectMap(staticProperties, ([name, desc]) => [name, this._createSymbol(name, desc)]),
+        this._requires,
+        this._staticRequires,
+        _objectMap(provides, ([name, desc]) => [name, this._createSymbol(name, desc)]),
+        _objectMap(staticProvides, ([name, desc]) => [name, this._createSymbol(name, desc)]),
       );
     }
 
@@ -63,32 +63,32 @@ if (typeof Protocol === 'undefined') {
 
     _isImplementedBy(klass) {
       return [
-        ...Object.values(this._symbols),
-        ...Object.keys(this._protoProperties).map(name => this[name]),
+        ...Object.values(this._requires),
+        ...Object.keys(this._provides).map(name => this[name]),
       ].every(sym => sym in klass.prototype) &&
       [
-        ...Object.values(this._staticSymbols),
-        ...Object.keys(this._staticProperties).map(name => this[name]),
+        ...Object.values(this._staticRequires),
+        ...Object.keys(this._staticProvides).map(name => this[name]),
       ].every(sym => sym in klass);
     }
 
     _unimplemented(klass) {
-      let protoSymbolsWhichWillBeInherited = this._collect(i => Object.getOwnPropertySymbols(i._protoProperties));
-      let staticSymbolsWhichWillBeInherited = this._collect(i => Object.getOwnPropertySymbols(i._staticProperties));
-      return this._collect(i => i._unimplementedHelper(klass, protoSymbolsWhichWillBeInherited, staticSymbolsWhichWillBeInherited));
+      let protoSymbolsWhichWillBeInherited = this._collect(i => Object.getOwnPropertySymbols(i._provides));
+      let staticRequiresWhichWillBeInherited = this._collect(i => Object.getOwnPropertySymbols(i._staticProvides));
+      return this._collect(i => i._unimplementedHelper(klass, protoSymbolsWhichWillBeInherited, staticRequiresWhichWillBeInherited));
     }
 
-    _unimplementedHelper(klass, protoSymbolsWhichWillBeInherited, staticSymbolsWhichWillBeInherited) {
-      let protoSymbolsWhichMustBeImplemented = Object.values(this._symbols);
-      let staticSymbolsWhichMustBeImplemented = Object.values(this._staticSymbols);
+    _unimplementedHelper(klass, protoSymbolsWhichWillBeInherited, staticRequiresWhichWillBeInherited) {
+      let protoSymbolsWhichMustBeImplemented = Object.values(this._requires);
+      let staticRequiresWhichMustBeImplemented = Object.values(this._staticRequires);
       let unimplemented = [];
       for (let symbol of protoSymbolsWhichMustBeImplemented) {
         if (!(symbol in klass.prototype) && !protoSymbolsWhichWillBeInherited.includes(symbol)) {
           unimplemented.push(symbol);
         }
       }
-      for (let symbol of staticSymbolsWhichMustBeImplemented) {
-        if (!(symbol in klass) && !staticSymbolsWhichWillBeInherited.includes(symbol)) {
+      for (let symbol of staticRequiresWhichMustBeImplemented) {
+        if (!(symbol in klass) && !staticRequiresWhichWillBeInherited.includes(symbol)) {
           unimplemented.push(symbol);
         }
       }
@@ -110,7 +110,7 @@ if (typeof Protocol === 'undefined') {
       Object.defineProperties(
         klass.prototype,
         this._collect(i => {
-          return _entries(i._protoProperties)
+          return _entries(i._provides)
             .filter(([name]) => !(name in klass.prototype))
             .map(([name, desc]) => [i[name], desc]);
         }).reduceRight(_foldToObject, {})
@@ -119,7 +119,7 @@ if (typeof Protocol === 'undefined') {
       Object.defineProperties(
         klass,
         this._collect(i =>
-          _entries(i._staticProperties)
+          _entries(i._staticProvides)
             .filter(([name]) => !(name in klass))
             .map(([name, desc]) => [i[name], desc]))
         .reduceRight(_foldToObject, {})
