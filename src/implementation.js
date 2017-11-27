@@ -8,9 +8,18 @@ function _objectMap(obj, fn) {
 }
 
 function _entries(obj) {
-  let stringKeys = Object.getOwnPropertyNames(obj);
-  let symKeys = Object.getOwnPropertySymbols(obj);
-  return [...stringKeys, ...symKeys].map(p => [p, obj[p]]);
+  return _allOwnProps(obj).map(p => [p, obj[p]]);
+}
+
+function _allOwnProps(obj) {
+  return [
+    ...Object.getOwnPropertyNames(obj),
+    ...Object.getOwnPropertySymbols(obj),
+  ];
+}
+
+function _containsDuplicates(xs) {
+  return (new Set(xs)).size !== Array.from(xs).length;
 }
 
 
@@ -24,13 +33,15 @@ export default class Protocol extends null {
     staticProvides = {},
   } = {}) {
     super();
+    if (_containsDuplicates([..._allOwnProps(requires), ..._allOwnProps(staticRequires), ..._allOwnProps(provides), ..._allOwnProps(staticProvides)])) {
+      throw new Error('conflicting protocol entry names');
+    }
     this._name = protocolName;
     this._extends = _extends;
     this._requires = _objectMap(requires, ([name, sym]) => [name, sym == null ? this._createSymbol(name, { value: sym }) : sym]);
     this._staticRequires = _objectMap(staticRequires, ([name, sym]) => [name, sym == null ? this._createSymbol(name, { value: sym }) : sym]);
     this._provides = provides;
     this._staticProvides = staticProvides;
-    // TODO: check that there's no conflicts between requires/staticRequires/provides/staticProvides
     Object.assign(
       this,
       this._requires,
