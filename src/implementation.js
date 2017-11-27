@@ -23,7 +23,7 @@ function _containsDuplicates(xs) {
 }
 
 
-export default class Protocol extends null {
+export default class Protocol {
   constructor({
     name: protocolName,
     extends: _extends = [],
@@ -32,7 +32,6 @@ export default class Protocol extends null {
     provides = {},
     staticProvides = {},
   } = {}) {
-    super();
     if (_containsDuplicates([..._allOwnProps(requires), ..._allOwnProps(staticRequires), ..._allOwnProps(provides), ..._allOwnProps(staticProvides)])) {
       throw new Error('conflicting protocol entry names');
     }
@@ -144,3 +143,5 @@ export default class Protocol extends null {
     return klass;
   }
 }
+
+Object.setPrototypeOf(Protocol.prototype, null);
