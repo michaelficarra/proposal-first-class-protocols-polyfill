@@ -4,7 +4,12 @@
   "description": "polyfill for first-class protocols runtime component",
   "main": "index.js",
   "files": [
-    "dist"
+    "dist",
+    "auto.js",
+    "implementation.js",
+    "index.js",
+    "polyfill.js",
+    "shim.js"
   ],
   "scripts": {
     "build": "babel --out-dir dist/ src/",
