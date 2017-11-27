@@ -36,6 +36,12 @@ export default class Protocol extends null {
     if (_containsDuplicates([..._allOwnProps(requires), ..._allOwnProps(staticRequires), ..._allOwnProps(provides), ..._allOwnProps(staticProvides)])) {
       throw new Error('conflicting protocol entry names');
     }
+    if (Object.getOwnPropertyNames(provides).includes('constructor')) {
+      throw new Error('illegal prototype property named "constructor"');
+    }
+    if (Object.getOwnPropertyNames(staticProvides).includes('prototype')) {
+      throw new Error('illegal static property named "prototype"');
+    }
     this._name = protocolName;
     this._extends = _extends;
     this._requires = _objectMap(requires, ([name, sym]) => [name, sym == null ? this._createSymbol(name, { value: sym }) : sym]);
