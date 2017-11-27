@@ -1,6 +1,6 @@
 {
   "name": "proposal-first-class-protocols",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "polyfill for first-class protocols runtime component",
   "main": "index.js",
   "files": [
