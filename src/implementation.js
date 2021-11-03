@@ -41,7 +41,7 @@ export default class Protocol {
     if (Object.getOwnPropertyNames(staticProvides).includes('prototype')) {
       throw new Error('illegal static property named "prototype"');
     }
-    this._name = protocolName;
+    this._name = protocolName == null ? protocolName : String(protocolName);
     this._extends = _extends;
     this._requires = _objectMap(requires, ([name, sym]) => [name, sym == null ? this._createSymbol(name, { value: sym }) : sym]);
     this._staticRequires = _objectMap(staticRequires, ([name, sym]) => [name, sym == null ? this._createSymbol(name, { value: sym }) : sym]);

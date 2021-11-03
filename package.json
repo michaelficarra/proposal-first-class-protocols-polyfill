@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "build": "babel --out-dir dist/ src/",
-    "test": "node -r ./auto -e 'process.exit(typeof Protocol === \"function\" ? 0 : 1);'",
+    "test": "ava ./test/*.spec.js",
     "prepublishOnly": "npm run build"
   },
   "repository": {
@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/michaelficarra/proposal-first-class-protocols-polyfill#readme",
   "devDependencies": {
+    "ava": "3.15.0",
     "babel-cli": "6.26.0",
     "babel-eslint": "8.0.0",
     "babel-preset-env": "1.6.0",
