@@ -23,6 +23,16 @@ test('symbols are generated for each provided field', t => {
   t.not(P.a, P.b);
 });
 
+test('protocols cannot provide a field named "constructor"', t => {
+  t.throws(() => {
+    new Protocol({
+      provides: Object.getOwnPropertyDescriptors({
+        constructor: function(){},
+      }),
+    });
+  });
+});
+
 test('symbols are generated for each static provided field', t => {
   const P = new Protocol({
     staticProvides: Object.getOwnPropertyDescriptors({
@@ -33,6 +43,16 @@ test('symbols are generated for each static provided field', t => {
   t.is(typeof P.a, 'symbol');
   t.is(typeof P.b, 'symbol');
   t.not(P.a, P.b);
+});
+
+test('protocols cannot provide a static field named "prototype"', t => {
+  t.throws(() => {
+    new Protocol({
+      staticProvides: Object.getOwnPropertyDescriptors({
+        prototype: {},
+      }),
+    });
+  });
 });
 
 test('provided fields, static provided fields, required fields, and static required fields must all be unique', t => {
@@ -125,4 +145,78 @@ test('protocol name is toString-ed only once', t => {
 
 test('static implement method exists', t => {
   t.is(typeof Protocol.implement, 'function');
+});
+
+test('Protocol.implement throws on non-constructibles', t => {
+  const P = new Protocol;
+
+  Protocol.implement(class {}, P);
+
+  t.throws(() => {
+    Protocol.implement(() => {}, P);
+  });
+});
+
+test('a class is given provided fields when it implements a protocol', t => {
+  const c = Symbol(), d = Symbol();
+
+  const P = new Protocol({
+    requires: { a: Symbol() },
+    staticRequires: { b: Symbol() },
+    provides: Object.getOwnPropertyDescriptors({ c }),
+    staticProvides: Object.getOwnPropertyDescriptors({ d }),
+  });
+
+  class C {
+    [P.a](){}
+    static [P.b](){}
+  }
+
+  t.is(C.prototype[P.c], void 0);
+  t.is(C[P.d], void 0);
+
+  Protocol.implement(C, P);
+
+  t.is(C.prototype[P.c], c);
+  t.is(C[P.d], d);
+});
+
+test('a class cannot implement protocol if it doesn\t have required fields', t => {
+  const P = new Protocol({
+    requires: { a: Symbol() },
+    staticRequires: { b: Symbol() },
+  });
+
+  Protocol.implement(
+    class c {
+      [P.a](){}
+      static [P.b](){}
+    },
+    P,
+  )
+
+  t.throws(() => {
+    Protocol.implement(
+      class c {},
+      P,
+    )
+  });
+
+  t.throws(() => {
+    Protocol.implement(
+      class c {
+        [P.a](){}
+      },
+      P,
+    )
+  });
+
+  t.throws(() => {
+    Protocol.implement(
+      class c {
+        static [P.b](){}
+      },
+      P,
+    )
+  });
 });
