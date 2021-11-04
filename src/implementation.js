@@ -19,9 +19,10 @@ function _allOwnProps(obj) {
 }
 
 function _containsDuplicates(xs) {
-  return (new Set(xs)).size !== Array.from(xs).length;
+  return new Set(xs).size !== Array.from(xs).length;
 }
 
+function noop() {}
 
 export default class Protocol {
   constructor({
@@ -57,10 +58,14 @@ export default class Protocol {
   }
 
   static implement(C, ...is) {
-    if (typeof C !== 'function' || !C.prototype) {
+    try {
+      Reflect.construct(noop, [], C);
+    } catch (unused) {
       throw new TypeError('first parameter must have a [[Construct]] internal slot');
     }
-    is.forEach(i => i._mixin(C));
+    for (let i of is) {
+      i._mixin(C);
+    }
     return C;
   }
 
@@ -136,8 +141,8 @@ export default class Protocol {
       this._collect(i =>
         _entries(i._staticProvides)
           .filter(([name]) => !(name in klass))
-          .map(([name, desc]) => [i[name], desc]))
-      .reduceRight(_foldToObject, {})
+          .map(([name, desc]) => [i[name], desc])
+      ).reduceRight(_foldToObject, {})
     );
 
     return klass;

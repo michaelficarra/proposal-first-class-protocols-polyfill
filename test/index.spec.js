@@ -17,10 +17,35 @@ test('symbols are generated for each provided field', t => {
       a() {},
       b: 1,
     }),
+    staticProvides: Object.getOwnPropertyDescriptors({
+      c() {},
+    }),
   });
   t.is(typeof P.a, 'symbol');
   t.is(typeof P.b, 'symbol');
+  t.is(typeof P.c, 'symbol');
   t.not(P.a, P.b);
+  t.not(P.b, P.c);
+  t.not(P.a, P.c);
+});
+
+test('existing symbols can be used for provided fields', t => {
+  const a = Symbol(), b = Symbol();
+
+  const P = new Protocol({
+    provides: Object.getOwnPropertyDescriptors({
+      [a]() {},
+    }),
+    staticProvides: Object.getOwnPropertyDescriptors({
+      [b]() {},
+    }),
+  });
+
+  t.is(typeof P[a], 'symbol');
+  t.is(typeof P[b], 'symbol');
+  t.not(P[a], P[b]);
+  t.is(P[a], a);
+  t.is(P[b], b);
 });
 
 test('protocols cannot provide a field named "constructor"', t => {
@@ -113,21 +138,45 @@ test('provided fields, static provided fields, required fields, and static requi
 
 test('protocol name propagates to generated Symbol descriptions', t => {
   const P = new Protocol({
+    requires: { a: null },
+    staticRequires: { b: void 0 },
     provides: Object.getOwnPropertyDescriptors({
-      a() {},
+      c() {},
+      get d() {},
+      set e(x) {},
     }),
   });
   t.is(typeof P.a, 'symbol');
+  t.is(typeof P.b, 'symbol');
+  t.is(typeof P.c, 'symbol');
+  t.is(typeof P.d, 'symbol');
+  t.is(typeof P.e, 'symbol');
   t.is(P.a.description, 'a');
+  t.is(P.b.description, 'b');
+  t.is(P.c.description, 'c');
+  t.is(P.d.description, 'get d');
+  t.is(P.e.description, 'set e');
 
   const Q = new Protocol({
     name: 'Q',
+    requires: { a: null },
+    staticRequires: { b: void 0 },
     provides: Object.getOwnPropertyDescriptors({
-      a() {},
+      c() {},
+      get d() {},
+      set e(x) {},
     }),
   });
   t.is(typeof Q.a, 'symbol');
+  t.is(typeof Q.b, 'symbol');
+  t.is(typeof Q.c, 'symbol');
+  t.is(typeof Q.d, 'symbol');
+  t.is(typeof Q.e, 'symbol');
   t.is(Q.a.description, 'Q.a');
+  t.is(Q.b.description, 'Q.b');
+  t.is(Q.c.description, 'Q.c');
+  t.is(Q.d.description, 'get Q.d');
+  t.is(Q.e.description, 'set Q.e');
 });
 
 test('protocol name is toString-ed only once', t => {
@@ -155,6 +204,16 @@ test('Protocol.implement throws on non-constructibles', t => {
   t.throws(() => {
     Protocol.implement(() => {}, P);
   });
+});
+
+test('Protocol.implement returns the constructor', t => {
+  const P = new Protocol;
+  const Q = new Protocol;
+  class C {}
+
+  t.is(Protocol.implement(C), C);
+  t.is(Protocol.implement(C, P), C);
+  t.is(Protocol.implement(C, P, Q), C);
 });
 
 test('a class is given provided fields when it implements a protocol', t => {
