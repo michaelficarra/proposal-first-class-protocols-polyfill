@@ -131,7 +131,7 @@ export default class Protocol {
       klass.prototype,
       this._collect(i => {
         return _entries(i._provides)
-          .filter(([name]) => !(name in klass.prototype))
+          .filter(([name]) => !(i[name] in klass.prototype))
           .map(([name, desc]) => [i[name], desc]);
       }).reduceRight(_foldToObject, {})
     );
@@ -140,7 +140,7 @@ export default class Protocol {
       klass,
       this._collect(i =>
         _entries(i._staticProvides)
-          .filter(([name]) => !(name in klass))
+          .filter(([name]) => !(i[name] in klass))
           .map(([name, desc]) => [i[name], desc])
       ).reduceRight(_foldToObject, {})
     );
