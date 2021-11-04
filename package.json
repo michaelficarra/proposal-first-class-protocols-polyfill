@@ -12,8 +12,9 @@
     "shim.js"
   ],
   "scripts": {
-    "build": "babel --source-maps --out-dir dist/ src/",
+    "build": "babel --source-maps true --out-dir dist/ src/",
     "test": "c8 --reporter text --reporter html ava ./test/*.spec.js",
+    "lint": "eslint src",
     "prepublishOnly": "npm run build"
   },
   "repository": {
@@ -27,11 +28,11 @@
   },
   "homepage": "https://github.com/michaelficarra/proposal-first-class-protocols-polyfill#readme",
   "devDependencies": {
+    "@babel/cli": "7.16.0",
+    "@babel/core": "7.16.0",
+    "@babel/preset-env": "7.16.0",
     "ava": "3.15.0",
-    "babel-cli": "6.26.0",
-    "babel-eslint": "8.0.0",
-    "babel-preset-env": "1.6.0",
     "c8": "7.10.0",
-    "eslint": "3.19.0"
+    "eslint": "8.1.0"
   }
 }
