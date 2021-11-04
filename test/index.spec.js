@@ -575,3 +575,37 @@ test('protocol-provided fields do not replace existing class fields', t => {
   t.is(new C()[P.a](), 1);
   t.is(C[P.b](), 1);
 });
+
+test('diamond pattern dependencies where one side introduces a needed field', t => {
+  const A = new Protocol({
+    requires: { a: null },
+    provides: Object.getOwnPropertyDescriptors({
+      success() { return 'success'; },
+    }),
+  });
+  const B0 = new Protocol({
+    extends: [A],
+    requires: { b0: null },
+  });
+  const B1 = new Protocol({
+    extends: [A],
+    requires: { b1: null },
+    provides: Object.getOwnPropertyDescriptors({
+      [A.a]() {},
+    }),
+  });
+  const C = new Protocol({
+    extends: [B0, B1],
+    requires: { c: null },
+  });
+
+  class X {
+    [B0.b0]() {}
+    [B1.b1]() {}
+    [C.c]() {}
+  }
+  Protocol.implement(X, C);
+
+  t.is(typeof X.prototype[A.success], 'function');
+  t.is(typeof X.prototype[A.a], 'function');
+});
